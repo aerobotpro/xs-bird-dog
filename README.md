@@ -3,16 +3,16 @@ An aggressive, programmable crawler, that doesn't follow the rules.
 For proof of concept only.
 
 ## Requirements
-> Python3.6+
+- Python3.6+
 
 ## Tests
-> Windows(nt)[passing]
+- Windows(nt)[passing]
 
 # Issues
 
-> Proxy-Usage is **not** working.
+- Proxy-Usage is **not** working.
 
-> Saves lost @ crash due to indexError @ main.py:flex()
+- Saves lost @ occasional interpreter crash/stumble due to indexError @ main.py:flex()
 
 ## Usage
 ```bash
