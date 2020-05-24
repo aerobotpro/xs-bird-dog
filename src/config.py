@@ -16,7 +16,7 @@ class config:
             "twitter.com/share"
             ]
 
-        
+        # Some random, interesting seek_expressions
         seek_expressions = [
             "@gmail.com",
             "@hotmail.com",
