@@ -13,7 +13,9 @@ def trueTLD(url):
     replaces = ["https", "http", ":","'", "\"", "www."]
     for x in range(len(replaces)):
         out = url.replace(replaces[x], "")
-    out = out.split("//")[1].split("/")[0].split("?")[0]
+    try:out = out.split("//")[1]
+    except: pass
+    out = out.split("/")[0].split("?")[0]
     return out
 
 def TLDtoUid(tld):
