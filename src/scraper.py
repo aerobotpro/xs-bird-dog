@@ -469,12 +469,5 @@ class void:
 
 
 
-####
-
-
-void.crawler(
-    "https://www.instagram.com/joerogan/?hl=en", 1, 10, True, False, "proxies/http_proxies.txt", "proxies/ssl_proxies.txt"
-    )
-###
 
 
