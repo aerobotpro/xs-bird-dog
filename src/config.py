@@ -14,9 +14,46 @@ class config:
             ".css",
             "captcha",
             "twitter.com/share"
+            "apache",
+            "nginx",
+            "font",
+            "cdn",
+            "w3",
+            "oracle",
+            "cloudfront",
+            "google",
+            "adobe",
+            "seo",
+            "ads",
+            "privacy",
+            "legal",
+            "abs",
+            "sdk",
+            "platform",
+            "v1",
+            "v2",
+            "v3",
+            "endpoint",
+            "api",
+            "faq",
+            "developer",
+            "svg",
+            "ajax"
+            "framework",
+            "min.",
+            "jobs",
+            "plugin",
+            "script",
+            "static",
+            "policy",
+            "schema",
+            "vendor",
+            "wordpress",
+            "wp-",
+            ""
             ]
 
-        # Some random, interesting seek_expressions
+        # SOME RANDOM SPOOPY SEARCH TERMS
         seek_expressions = [
             "@gmail.com",
             "@hotmail.com",
@@ -24,16 +61,12 @@ class config:
             "@yandex.com",
             "@mail.com",
             "@mail.ru",
-            "@google.com",
             "pastebin",
             "facebook.com",
             "youtube",
             "yandex",
             "huawei",
-            "username",
-            "auth",
-            ".gov",
-            "mil"
+            "username"
             ]
 
 
@@ -42,14 +75,14 @@ class config:
         
 class glbls:
     
-    # INTRINSINCS
+    # INTRINSINCS - SOME ARE FROM UI VERSION
     sought_expressions = config.expressions.seek_expressions
     drop_expressions = config.expressions.drop_expressions
     sesh_id = str()
     tld = str()
     data_dir = str()    
     usage_type = int()
-    pool = list()
+    pool = {}
     current_url = ""
     last_pool_len = 0
     last_index = 0
@@ -59,8 +92,6 @@ class glbls:
     ssl_proxies = list()
     proxy_in_use = ""
     proxy_timeout_seconds = 8
-
-    # FRONTEND GLOBALS
     host = None
     amount = None
     sleep_ = None
@@ -69,11 +100,15 @@ class glbls:
     b_label = None
     lbl_clr = None
     bool_ready = None
-
-    # FRONTEND - THREAD CONTROL
     term = None
     shell_thread = None
     message = str()
     main_thread = None
     err_out = str()
     master_hook = None
+    usageType = str()
+
+                
+            
+
+            
