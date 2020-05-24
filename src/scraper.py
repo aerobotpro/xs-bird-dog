@@ -1,18 +1,10 @@
 
 #Todos:
-# Download fresh proxies at every startup from proxyscrape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Fix Proxy usage
+# Download fresh proxies at every startup from proxyscrape
 # Get latency for all requests
-# Add discord notify
-import json
-from requests import get
-import psutil
-from datetime import datetime
-from os import system, name, getcwd, mkdir
-from random import choice, randint
-from time import sleep
-from config import config, glbls
-#import threading
-from tkinter import END
+# Add discord notify for hits/completions.
+
 
 import sys
 
@@ -20,164 +12,11 @@ if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
 
+#INCLUDES
+from config import config, glbls    
+from functions import *
 
 
-def load_proxies(http_proxy_file, ssl_proxy_file, verbose):
-    with open(http_proxy_file,"r") as d:
-        glbls.http_proxies = d.read().split('\n')
-        if verbose:
-            #print(str(glbls.http_proxies))
-            print(f"\n\n\n[LOGGING]: [HTTP Proxies Loaded!] - [File: {http_proxy_file} / Amount: {len(glbls.http_proxies)}]")
-    with open(ssl_proxy_file,"r") as d:
-        glbls.ssl_proxies = d.read().split('\n')
-        if verbose:
-            #print(str(glbls.ssl_proxies))
-            print(f"\n\n\n[LOGGING]: [SSL Proxies Loaded!] - [File: {ssl_proxy_file} / Amount: {len(glbls.ssl_proxies)}]\n\n")
-
-class version:
-    version = "1.0.0.0"
-    start_time = str(datetime.now())
-    
-
-def get_good_proxy(url, verbose):
-    if "https" in url:
-        src = glbls.ssl_proxies
-    else:
-        src = glbls.http_proxies
-        
-    for x in range(0, len(src)):
-        t = src[x]
-        p={}
-        if "https" in url:
-            prefix = "http://" # <problem1> Might not work with universal "http"
-        else:
-            prefix = "http://"
-        p['http'] = prefix + t
-        p['https'] = prefix + t
-        if verbose:
-            print(f"\n\n\n[LOGGING]: [Testing Proxy: {p}...]")
-            
-        # Quality Checks
-        if x == (len(src) / 2):
-            if verbose:
-                clear()
-                print("\n\n[Warning]: Failed To Find ANY Good Proxies after testing 50% of list!!!")
-        
-        if x == len(src):
-            if verbose:
-                clear()
-                print("\n\n[FATAL ERROR]: [Reached End Of List But Failed To Find Good Proxy!!!]")
-                
-            good_proxy = None
-            break
-        
-        try:
-            
-            r = get("https://google.com/", headers=get_headers(), proxies=p, timeout=glbls.proxy_timeout_seconds)
-            good_proxy = t
-            glbls.proxy_in_use = t
-            break
-        
-        except Exception as e:
-            print(f"[Proxy: {str(p)}] [Bad Proxy] [{str(e)}]")
-            if "https" in url:
-                del glbls.ssl_proxies[x]
-            else:
-                del glbls.http_proxies[x]
-            pass
-            
-    return good_proxy        
-                
-                
-        
-    
-    
-#proxytypes: http = 0;socks5 >= 1
-def anon_request(url, verbose):
-    proxies = {}
-    proxy = get_good_proxy(url, verbose)
-    proxies['http'] = proxy
-    proxies['https'] = proxy
-    r = get(
-        url, 
-        headers = get_headers(),
-        proxies = proxies
-        )
-    
-    ## APPEND USED LINKS TO DROP LIST
-    glbls.drop_expressions.append(url)
-    return r
-
-def direct_request(url, verbose):
-    r = get(
-        url, 
-        headers = get_headers()
-        )
-    
-    ## APPEND USED LINKS TO DROP LIST
-    glbls.drop_expressions.append(url)
-    return r    
-
-
-
-def get_headers():
-    useragents = [
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/57.0.2987.110 '
-        'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/61.0.3163.79 '
-        'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:55.0) '
-        'Gecko/20100101 '
-        'Firefox/55.0'),  # firefox
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/61.0.3163.91 '
-        'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/62.0.3202.89 '
-        'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/63.0.3239.108 '
-        'Safari/537.36'),  # chrome
-    ]
-    user_agent = choice(useragents)
-    headers = {'User-Agent' : user_agent}
-    return headers
-
-def log(info):
-    with open("{getcwd()}/log/log.txt", "w+") as log:
-        log.write(f"\n[{str(datetime.now)}] - {info}")
-
-def log_error(info):
-    with open(f"{getcwd()}/log/error.txt", "w+") as log:
-        log.write(f"\n[{str(datetime.now)}] - {info}")
-    
-def clear():
-    if name == 'nt': _ = system('cls')
-    else: _ = system('clear')
-
-def get_cpu():
-    return f"{psutil.cpu_percent(interval=None)}%"
-
-def get_ram():
-    return f"{psutil.virtual_memory().percent}%"    
-
-#Data handling
-def global_pool_update(current_index):
-    this = dict()
-    this['potential_index'] = int(current_index)
-    this['current_pool_len'] = len(glbls.pool)
-    this['potential_difference'] = len(glbls.pool) - int(current_index)
-    this['last_index'] = glbls.last_index
-    this['last_pool_len'] = glbls.last_pool_len
-    this['last_difference'] = int(glbls.last_pool_len - glbls.last_index)
-    glbls.current_index_data = this
 
 def index_data(tld, verbose, B_use_proxies):
     #Overall Allocations
@@ -185,15 +24,15 @@ def index_data(tld, verbose, B_use_proxies):
     index_data = 0
     #Make Initial Contant With Index. (hopefully)
     try:
-        if B_use_proxies: r = anon_request(f"http://{tld}/", verbose)
-        else: r = direct_request(f"http://{tld}/", verbose)
+        if B_use_proxies: r = anon_request(tld, verbose)
+        else: r = direct_request(tld, verbose)
     except Exception as d:
         log_error(d)
         if verbose:
             print(d)
         try:
-            if B_use_proxies: r = anon_request(f"https://{tld}/", verbose)
-            else: r = direct_request(f"https://{tld}/", verbose)
+            if B_use_proxies: r = anon_request(f"http://{glbls.tld}/", verbose)
+            else: r = direct_request(f"http://{glbls.tld}/", verbose)
         except Exception as e:
             log_error(e)
             if verbose:
@@ -227,7 +66,9 @@ def index_data(tld, verbose, B_use_proxies):
                 url = "http" + str(shred[x].split('http')[1].split('"')[0])
                 
                 if tld in url:
-                    if any(word in url for word in glbls.drop_expressions):
+                    if any(word in url.lower() for word in glbls.drop_expressions):
+                        if verbose:
+                            print(f"Dropped: {url}")
                         pass
                     else:
                         internal_links.append(url)
@@ -238,7 +79,9 @@ def index_data(tld, verbose, B_use_proxies):
                                 print(f"Warning: {str(D)}")
                                 
                 else:
-                    if any(word in url for word in glbls.drop_expressions):
+                    if any(word in url.lower() for word in glbls.drop_expressions):
+                        if verbose:
+                            print(f"Dropped: {url}")              
                         pass
                     else:
                         external_links.append(url)
@@ -253,7 +96,11 @@ def index_data(tld, verbose, B_use_proxies):
         links['external'] = external_links
 
         #Push BOTH lists of links to BOTTOM of global pool
-        glbls.pool = internal_links + external_links
+                #Push new lists of links to BOTTOM of each global pool
+        glbls.pool = {
+            "internal_links": list(internal_links),
+            "external_links": list(external_links)
+            }
         #print(glbls.pool)
 
         #Push this to page_data
@@ -289,20 +136,23 @@ def index_data(tld, verbose, B_use_proxies):
 
 
 # Essentially for every page besides initial index *
-def new_data(new_url, tld, verbose, B_use_proxies):
+def new_data(new_url, verbose, B_use_proxies):
     index_data = 0
-    #Overall Allocations
     page_data = dict()
-
+    
     #Make Initial Contant With Index. (hopefully)
     try:
         if B_use_proxies: r = anon_request(new_url, verbose)
         else: r = direct_request(new_url, verbose)
-        
     except Exception as d:
         log_error(d)
-        index_data = None
-        pass
+        try:
+            if B_use_proxies:r = anon_request(f"http://{new_url}", verbose)
+            else: r = direct_request(f"http://{new_url}", verbose)
+        except Exception as dd:
+            log_error(dd)
+            index_data = None
+            pass
 
     #Vitals
     cpu = get_cpu()
@@ -311,6 +161,9 @@ def new_data(new_url, tld, verbose, B_use_proxies):
 
     #Success - Check Index
     if index_data is not None:
+
+        #GET TRUE TLD
+        tld = trueTLD(new_url)
         
         #split page lines
         shred = r.text.split('\n')
@@ -323,30 +176,11 @@ def new_data(new_url, tld, verbose, B_use_proxies):
             #Scout New Links
             if "https://" in shred[x] or "http://" in shred[x]:
                 url = "http" + str(shred[x].split('http')[1].split('"')[0])
-                if tld in url:
-                    if any(word in url for word in glbls.drop_expressions):
-                        pass
-                    else:
-                        internal_links.append(url)
-                        if verbose:
-                            try:
-                                print(f"[{new_url}] - Found Internal Link: {url}")
-                            except Exception as D:
-                                print(f"Warning: {str(D)}")
-
-                else:
-                    if any(word in url for word in glbls.drop_expressions):
-                        pass
-                    else:
-                        external_links.append(url)
-                        if verbose:
-                            try:
-                                print(f"[{new_url}] - Found Internal Link: {url}")
-                            except Exception as E:
-                                print(f"Warning: {str(E)}")
-
-                if any(word in new_url for word in glbls.sought_expressions):
+                
+                if any(word in new_url.lower() for word in glbls.sought_expressions):
                     with open(f"{glbls.data_dir}/{glbls.sesh_id}_hits.dat", "a+") as ddd:
+                        if verbose:
+                            print(f"Found: {url}")                        
                         ddd.write(
                             f"""
             ---------------------
@@ -361,7 +195,35 @@ def new_data(new_url, tld, verbose, B_use_proxies):
 
             
             """
-                            )                
+                            )
+                        
+                if tld in url:
+                    if any(word in url.lower() for word in glbls.drop_expressions):
+                        if verbose:
+                            print(f"Dropped: {url}")
+                        pass
+                    else:
+                        internal_links.append(url)
+                        if verbose:
+                            try:
+                                print(f"[{new_url}] - Found Internal Link: {url}")
+                            except Exception as D:
+                                print(f"Warning: {str(D)}")
+
+                else:
+                    if any(word in url.lower() for word in glbls.drop_expressions):
+                        if verbose:
+                            print(f"Dropped: {url}")                        
+                        pass
+                    else:
+                        external_links.append(url)
+                        if verbose:
+                            try:
+                                print(f"[{new_url}] - Found Internal Link: {url}")
+                            except Exception as E:
+                                print(f"Warning: {str(E)}")
+
+       
                                             
     
         links = dict()
@@ -369,8 +231,11 @@ def new_data(new_url, tld, verbose, B_use_proxies):
         links['external'] = external_links
         
 
-        #Push BOTH lists of links to BOTTOM of global pool
-        glbls.pool = list(list(glbls.pool) + list(internal_links) + list(external_links))
+        #Push new lists of links to BOTTOM of each global pool
+        glbls.pool = {
+            "internal_links": glbls.pool['internal_links'] + list(internal_links),
+            "external_links": glbls.pool['external_links'] + list(external_links)
+            }
 
         #Push this to page_data
         page_data['url'] = new_url
@@ -398,55 +263,38 @@ def new_data(new_url, tld, verbose, B_use_proxies):
         page_data['ram'] = ram
         page_data['proxy'] = glbls.proxy_in_use
         page_data['time_stamp'] = t_stamp        
-        
-
+    
     return page_data
        
 
 def flex(tld, usagetype, B_verbose, B_use_proxies):
-    for x in range(0, len(glbls.pool)):
-        glbls.tmp.append(
-            new_data(
-                glbls.pool[x],
-                tld,
-                B_verbose,
-                B_use_proxies
-                )
-            )
+    for x in range(0, len(glbls.pool[glbls.usageType])):
+        try:
+            glbls.tmp.append(
+                new_data(
+                    glbls.pool[glbls.usageType][x],
+                    B_verbose,
+                    B_use_proxies
+                    )
+                )    
+        except Exception as ddd:
+            log_error(ddd)
+            if B_verbose:
+                print(f"Warning: {str(ddd)}")
+        # DEFACTOR THE USED NW URL    
+        glbls.pool[glbls.usageType].remove(glbls.pool[glbls.usageType][x])
 
-def unique_id():
-    ## Chances are (1 in 8999 *)^2 of non-unique id, still not good enough to be "cryptographic" - needs work
-    idu = str(randint(1000, 9999))
-    ida = str() #Best Chance Value
-    try:
-        with open("crypto.dat", "r") as this:
-            historical_crypto = this.read().splitlines()
-    except:
-        with open("crypto.dat", "w+") as fp:
-            fp.close()
-        with open("crypto.dat", "r") as this:
-            historical_crypto = this.read().splitlines()
-            
-    for c in range(0, len(historical_crypto)):
-        if idu in historical_crypto[c]:
-            ida = unique_id()
-            break
-        else: ida = idu
-    with open("crypto.dat", "a") as d:
-        d.write("\r\n" + idu)
-    return ida   
-    
 
 #Main
 class void:
     class crawler:
-        def __init__(self, tld, usagetype, generations, B_verbose=True, B_use_proxies=False, http_proxy_file_name=None, ssl_proxy_file_name=None):
+        def __init__(self, url, usagetype, generations, B_verbose=True, B_use_proxies=False, http_proxy_file_name=None, ssl_proxy_file_name=None):
 
             ##USAGE SCHEMA:
-            #if usagetype == 0:
-            #    internal_only = True
-            #else:
-            #    internal_only = False
+            if usagetype == 0:
+                glbls.usageType = "internal_links"
+            else:
+                glbls.usageType = "external_links"
 
             if B_use_proxies:
                 #Load Proxies
@@ -455,13 +303,25 @@ class void:
                     print("Proxies Loaded!")
                 
             #Check for user entering a url not a tld
-            glbls.tld = tld.replace("http", "").replace("//", "").split("/")[0].replace("/", "")
+            isUrl = False        
+            urlSigs = ["http", "://", "/"]
+            for x in range(len(urlSigs)):
+                if urlSigs[x] in url:
+                    isUrl = True
+
+            #Clean up params for now   //TODO     
+            url = url.split("?")[0]        
+                    
+            # GET TRUE TLD                
+            glbls.tld = trueTLD(url)
+            
             if B_verbose:
-                print("Top Level Domain Validated!")        
+                print("Top Level Domain Validated!")
             
 
-            #
-            glbls.sesh_id = tld.replace(".", "-") + "_" + unique_id()
+            # MAKE SESH ID
+            glbls.sesh_id =  glbls.tld + "-" + unique_id()
+            
             if B_verbose:
                 print(f"Session ID: {glbls.sesh_id}")        
 
@@ -481,7 +341,7 @@ class void:
                 tstat = 5
                 for _ in range(0, tstat):
                     print(f"Runtime Environment Created - Beginning Session in {tstat} Seconds...\r")
-                    sleep(1)
+                    sleep(.1)#1 seconds
                     tstat -= 1
                 
 
@@ -489,7 +349,7 @@ class void:
             master_data = []
 
             # First is always index page then so on and so on...
-            master_data.append(index_data(tld, B_verbose, B_use_proxies))
+            master_data.append(index_data(url, B_verbose, B_use_proxies))
 
             #Pass master_data to temporary global scope.
             glbls.tmp = master_data
@@ -498,15 +358,16 @@ class void:
             for x in range(0, generations):
 
                 #LOOP THROUGH GENERATIONS. 
-                flex(tld, usagetype, B_verbose, B_use_proxies)
+                flex(glbls.tld, usagetype, B_verbose, B_use_proxies)
 
                 #SAVES OUR PROGRESS - Dumps To JSON. 
                 try:
-                    file = f"{glbls.data_dir}/" + tld.replace(".", "_").replace("/", "-") + f"gen_{x}.json"
+                    file = f"{glbls.data_dir}/" + url.replace(".", "_").replace("/", "-") + f"gen_{x}.json"
                     with open(file, 'w+') as f: json.dump(list(glbls.tmp), f)
                 except Exception as Dd:
                     print(str(Dd))
-                    if B_verbose: xx = input("Hit enter to continue...")
+                    if B_verbose:
+                        xx = input("Hit enter to continue...")
                     pass
                 
                 stat = 5    
@@ -515,7 +376,6 @@ class void:
                     stat -= 1
                     sleep(1)
                     
-                
 
             #End Of Session, Reguardless Of Performance. 
             #Pass Main Data Back To Local Scope, Session Is Done.     
@@ -609,6 +469,12 @@ class void:
 
 
 
+####
 
+
+void.crawler(
+    "https://www.instagram.com/joerogan/?hl=en", 1, 10, True, False, "proxies/http_proxies.txt", "proxies/ssl_proxies.txt"
+    )
+###
 
 
