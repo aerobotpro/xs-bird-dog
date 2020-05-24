@@ -4,10 +4,10 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("host", help="The Top Level Domain To Crawl",
+parser.add_argument("host", help="The URL To Crawl",
                     type=str)
 
-parser.add_argument("amount", help="Amount of generations; 1 gen == sending request to each internal/external link found @ an index.",
+parser.add_argument("amount", help="Amount of generations; 1 generation == sending 1 request to each internal/external link found @ an index then returning those links. Upon next generation, the previously found links will be visited/indexed and so on.",
                     type=int)
 
 
