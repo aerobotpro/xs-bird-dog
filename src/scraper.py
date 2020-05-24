@@ -320,7 +320,7 @@ class void:
             
 
             # MAKE SESH ID
-            glbls.sesh_id =  glbls.tld + "-" + unique_id()
+            glbls.sesh_id =  TLDtoUid(glbls.tld) + "-" + unique_id()
             
             if B_verbose:
                 print(f"Session ID: {glbls.sesh_id}")        
