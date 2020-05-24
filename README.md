@@ -2,7 +2,7 @@
 An aggressive, programmable crawler, that doesn't follow the rules.
 For proof of concept only.
 
-()[https://content.osgnetworks.tv/gundog/content/photos/bracco-italiano-holding-rooster.jpg]
+[!](https://content.osgnetworks.tv/gundog/content/photos/bracco-italiano-holding-rooster.jpg)
 
 ## Requirements
 - Python3.6+
