@@ -297,7 +297,7 @@ def new_data(new_url, tld, verbose, B_use_proxies):
     #Make Initial Contant With Index. (hopefully)
     try:
         if B_use_proxies: r = anon_request(new_url, verbose)
-        else: r = direct_request(f"https://{tld}/", verbose)
+        else: r = direct_request(new_url, verbose)
         
     except Exception as d:
         log_error(d)
