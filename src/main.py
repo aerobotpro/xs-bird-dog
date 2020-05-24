@@ -17,6 +17,8 @@ args = parser.parse_args()
 
 void.crawler(
 # PROXY METHOD IS ALMOST WORKING, JUST CANNOT 100% ENSURE ALL "GOOD" PROXIES WILL CONNECT TO CERTAIN ENDPOINTS.
+# For now, leave the default values for `proxy_list_name`/s.
+# You may need to make these files, blank is fine, in your `/proxies/` dir.  
     args.host, 1, args.amount, True, False, "proxies/http_proxies.txt", "proxies/ssl_proxies.txt"
     )
 
